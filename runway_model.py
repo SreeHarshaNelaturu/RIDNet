@@ -5,7 +5,6 @@ import model
 import loss
 from option import args
 from trainer import Trainer
-import cv2
 torch.manual_seed(1)
 import runway
 from runway.data_types import *
