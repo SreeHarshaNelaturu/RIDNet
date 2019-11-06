@@ -56,7 +56,6 @@ class Trainer():
 
             sr = self.model(lr, 1)
             sr = utility.quantize(sr, 255)
-            print(sr.shape)
             #save_list = [sr]
             sr = sr.squeeze(0)
             normalized = sr.data.mul(255 / 255)
@@ -69,7 +68,6 @@ class Trainer():
         ltensor = set_channel(l, 3)[0]
         img_tensor = np2Tensor([ltensor], 255)[0]
         img_tensor = img_tensor.unsqueeze(0)
-        print(img_tensor.shape)
         img_tensor.to(device)
 
         return img_tensor

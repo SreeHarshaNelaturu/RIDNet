@@ -26,7 +26,7 @@ class Model(nn.Module):
             resume=0,
             cpu= True if self.device_mode == 'cpu' else False
         )
-        print(self.model)
+        #print(self.model)
 
     def forward(self, x, idx_scale):
         self.idx_scale = idx_scale
