@@ -47,7 +47,7 @@ class Trainer():
 
     def test(self, image):
 
-        self.model.to(device).eval()
+        self.model.to(self.device).eval()
 
         timer_test = utility.timer()
         with torch.no_grad():
