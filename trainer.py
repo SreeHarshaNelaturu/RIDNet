@@ -52,8 +52,8 @@ class Trainer():
         timer_test = utility.timer()
         with torch.no_grad():
             lr = image
-            lr = self.prepare([lr])
-
+            lr = self.prepare([lr]).to(self.device)
+            
             sr = self.model(lr, 1)
             sr = utility.quantize(sr, 255)
             #save_list = [sr]
@@ -68,7 +68,7 @@ class Trainer():
         ltensor = set_channel(l, 3)[0]
         img_tensor = np2Tensor([ltensor], 255)[0]
         img_tensor = img_tensor.unsqueeze(0)
-        img_tensor.to(device)
+        img_tensor.to(self.device)
 
         return img_tensor
 

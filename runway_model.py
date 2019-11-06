@@ -13,9 +13,8 @@ from runway.data_types import *
 @runway.setup(options={"pre_trained" : file(extension=".pt")})
 def setup(opts):
     pre_trained = opts["pre_trained"]
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model_ckpt = model.Model(pre_trained, 1, 'single').to(device)
-    print(device)
+    model_ckpt = model.Model(pre_trained, 1, 'single')
+ 
     t = Trainer(1, model_ckpt, None, 'single')
     return t
 
