@@ -4,7 +4,6 @@ from decimal import Decimal
 
 import utility
 import scipy.misc as misc
-import cv2
 import torch
 from torch.autograd import Variable
 from tqdm import tqdm
