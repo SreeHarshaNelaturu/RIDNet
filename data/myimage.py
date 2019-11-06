@@ -4,7 +4,6 @@ import random
 import math
 import errno
 
-from data import common
 
 import numpy as np
 import scipy.misc as misc
@@ -21,7 +20,7 @@ class MyImage(data.Dataset):
         self.noise_g = args.noise_g
         self.idx_scale = 0
         apath = args.testpath + '/' + args.testset + '/X' + str(args.noise_g[0])
-
+        #apath = "../LR/LRBI/RNI15/lala/" 
         self.filelist = []
         self.imnamelist = []
         if not train:

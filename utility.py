@@ -40,7 +40,6 @@ class timer():
 
 class checkpoint():
     def __init__(self, args):
-        self.args = args
         self.ok = True
         self.log = torch.Tensor()
         now = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')

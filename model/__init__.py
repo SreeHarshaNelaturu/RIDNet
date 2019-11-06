@@ -6,34 +6,27 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 class Model(nn.Module):
-    def __init__(self, args, ckp):
+    def __init__(self, model_ckpt, noise_g, precision):
         super(Model, self).__init__()
         print('Making model...')
-
-        self.noise_g = args.noise_g
+        self.model_ckpt = model_ckpt
+        self.precision = precision
+        self.noise_g = noise_g
         self.idx_scale = 0
-        self.self_ensemble = args.self_ensemble
-        self.chop = args.chop
-        self.precision = args.precision
-        self.cpu = args.cpu
-        self.device = torch.device('cpu' if args.cpu else 'cuda')
-        self.n_GPUs = args.n_GPUs
-        self.save_models = args.save_models
+        self.self_ensemble = False
+        self.chop = False
+        self.device_mode = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device(self.device_mode)
 
-        module = import_module('model.' + args.model.lower())
-        self.model = module.make_model(args).to(self.device)
-        if args.precision == 'half': self.model.half()
+        module = import_module('model.' + 'ridnet')
+        self.model = module.make_model().to(self.device)
+        if self.precision == 'half': self.model.half()
 
-        if not args.cpu and args.n_GPUs > 1:
-            self.model = nn.DataParallel(self.model, range(args.n_GPUs))
-
-        self.load(
-            ckp.dir,
-            pre_train=args.pre_train,
-            resume=args.resume,
-            cpu=args.cpu
+        self.load(pre_train=self.model_ckpt,
+            resume=0,
+            cpu= True if self.device_mode == 'cpu' else False
         )
-        if args.print_model: print(self.model)
+        print(self.model)
 
     def forward(self, x, idx_scale):
         self.idx_scale = idx_scale
@@ -54,10 +47,7 @@ class Model(nn.Module):
             return self.model(x)
 
     def get_model(self):
-        if self.n_GPUs == 1:
-            return self.model
-        else:
-            return self.model.module
+        return self.model
 
     def state_dict(self, **kwargs):
         target = self.get_model()
@@ -75,41 +65,24 @@ class Model(nn.Module):
                 os.path.join(apath, 'model', 'model_best.pt')
             )
         
-        if self.save_models:
+        """if self.save_models:
             torch.save(
                 target.state_dict(),
                 os.path.join(apath, 'model', 'model_{}.pt'.format(epoch))
-            )
+            )"""
 
-    def load(self, apath, pre_train='.', resume=-1, cpu=False):
+    def load(self, pre_train, resume=0, cpu=False):
         if cpu:
             kwargs = {'map_location': lambda storage, loc: storage}
         else:
             kwargs = {}
+        
+        print('Loading model from {}'.format(pre_train))
+        self.get_model().load_state_dict(
+            torch.load(pre_train, **kwargs),
+            strict=False
+        )
 
-        if resume == -1:
-            self.get_model().load_state_dict(
-                torch.load(
-                    os.path.join(apath, 'model', 'model_latest.pt'),
-                    **kwargs
-                ),
-                strict=False
-            )
-        elif resume == 0:
-            if pre_train != '.':
-                print('Loading model from {}'.format(pre_train))
-                self.get_model().load_state_dict(
-                    torch.load(pre_train, **kwargs),
-                    strict=False
-                )
-        else:
-            self.get_model().load_state_dict(
-                torch.load(
-                    os.path.join(apath, 'model', 'model_{}.pt'.format(resume)),
-                    **kwargs
-                ),
-                strict=False
-            )
 
     def forward_chop(self, x, shave=10, min_size=160000):
         scale = self.scale[self.idx_scale]

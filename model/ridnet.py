@@ -2,8 +2,8 @@ import torch.nn as nn
 from model import ops
 from model import common
 
-def make_model(args, parent=False):
-    return RIDNET(args)
+def make_model(parent=False):
+    return RIDNET()
 
 
 
@@ -45,18 +45,18 @@ class Block(nn.Module):
 
 
 class RIDNET(nn.Module):
-    def __init__(self, args):
+    def __init__(self):
         super(RIDNET, self).__init__()
         
-        n_feats = args.n_feats
+        n_feats = 64
         kernel_size = 3
-        reduction = args.reduction 
+        reduction = 16
         
         rgb_mean = (0.4488, 0.4371, 0.4040)
         rgb_std = (1.0, 1.0, 1.0)
 
-        self.sub_mean = common.MeanShift(args.rgb_range, rgb_mean, rgb_std)       
-        self.add_mean = common.MeanShift(args.rgb_range, rgb_mean, rgb_std, 1)
+        self.sub_mean = common.MeanShift(255, rgb_mean, rgb_std)       
+        self.add_mean = common.MeanShift(255, rgb_mean, rgb_std, 1)
 
         self.head = ops.BasicBlock(3, n_feats, kernel_size, 1, 1)
 
