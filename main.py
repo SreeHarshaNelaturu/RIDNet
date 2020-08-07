@@ -15,6 +15,6 @@ model = model.Model("../experiment/ridnet.pt", 1, 'single')
 
 t = Trainer(1, model, None, 'single')
 t_out = t.test(image)
-misc.imsave('{}{}.png'.format("out", "boom"), t_out)
+cv2.imwrite('{}{}.png'.format("out", "boom"), t_out)
 
 
